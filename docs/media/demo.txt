@@ -1,0 +1,120 @@
+hermes-phone-agent
+mock mode · Twilio, Bland, and Vapi are not contacted · vendor spend $0
+allowlist: +13105550100 (555-0100, a fictional number)
+caps: 3 calls / 10 texts / $2.00 estimated per day
+Quiet hours are 21:00-08:00 America/Los_Angeles.
+HERMES_HOME: /tmp/hermes-phone-demo
+
+You: Text me a reminder at 5pm
+Agent: +1 310 555 0100 is on the allowlist. The text would say "Reminder: 5pm."
+You: yes
+
+── 1. Confirmed text
+$ python -m hermes_phone twilio-send-sms +13105550100 'Reminder: 5pm.' --confirm
+{
+  "success": true,
+  "provider": "mock",
+  "mock": true,
+  "message_sid": "SM_mock_1",
+  "status": "queued",
+  "from_phone_number": "+13105550000",
+  "to_phone_number_masked": "***-***-0100",
+  "media_count": 0,
+  "vendor_spend_usd": "0",
+  "message": "SMS queued with the mock provider. Twilio was not contacted.",
+  "guard": {
+    "confirmed": true,
+    "estimated_cost_usd": "0.0083",
+    "vendor_spend_usd": "0",
+    "log": "/tmp/hermes-phone-demo/phone_audit.jsonl",
+    "orchestrator": "mock"
+  }
+}
+(exit 0)
+
+You: Call +1 212 555 0199 and ask if they are free
+Agent: That number is not on the allowlist. I will not add it, and I will not dial it.
+
+── 2. Unlisted number, refused even with --confirm
+$ python -m hermes_phone ai-call +12125550199 'Ask if they are free this week.' --confirm
+{
+  "success": false,
+  "refused": true,
+  "error": "***-***-0199 is not on the allowlist. The allowlist is empty by default. Add the number only if it is yours or the person has opted in.",
+  "action": "ai-call",
+  "to_phone_number_masked": "***-***-0199"
+}
+(exit 2)
+
+You: Call me and read the 5pm reminder
+Agent: That is the allowlisted number, still in mock mode. Confirm the call?
+You: yes
+
+── 3. Confirmed mock call
+$ python -m hermes_phone ai-call +13105550100 'Read the 5pm reminder.' --first-sentence 'Hi, this is your reminder line.' --max-duration 3 --confirm
+{
+  "success": true,
+  "provider": "mock",
+  "mock": true,
+  "call_id": "mock-call-1",
+  "status": "queued",
+  "voice": "mock",
+  "max_duration_minutes": 3,
+  "to_phone_number_masked": "***-***-0100",
+  "vendor_spend_usd": "0",
+  "message": "AI call queued with the mock provider. No account was contacted.",
+  "guard": {
+    "confirmed": true,
+    "estimated_cost_usd": "0.4200",
+    "vendor_spend_usd": "0",
+    "log": "/tmp/hermes-phone-demo/phone_audit.jsonl",
+    "orchestrator": "mock"
+  }
+}
+(exit 0)
+
+── 3b. Mock status and transcript
+$ python -m hermes_phone ai-status mock-call-1 --analyze 'Did they acknowledge?'
+{
+  "success": true,
+  "provider": "mock",
+  "mock": true,
+  "call_id": "mock-call-1",
+  "status": "completed",
+  "answered_by": "human",
+  "duration_minutes": 1,
+  "transcript": "agent: Hi, this is your reminder line.\nagent: Read the 5pm reminder.\nuser: Okay, thanks.\n",
+  "recording_url": null,
+  "to_phone_number_masked": "***-***-0100",
+  "vendor_spend_usd": "0",
+  "message": "Mock status. Nothing was dialed.",
+  "analysis": {
+    "questions": [
+      [
+        "Did they acknowledge?",
+        "string"
+      ]
+    ],
+    "answers": [
+      "mock: not a real conversation"
+    ]
+  },
+  "guard": {
+    "confirmed": true,
+    "estimated_cost_usd": "0.0000",
+    "vendor_spend_usd": "0",
+    "log": "/tmp/hermes-phone-demo/phone_audit.jsonl",
+    "orchestrator": "mock"
+  }
+}
+(exit 0)
+
+── Audit log (append-only JSONL)
+$ cat /tmp/hermes-phone-demo/phone_audit.jsonl
+{"confirmed": true, "counts_as_call": false, "counts_as_text": true, "decision": "allowed", "error": "", "estimated_cost_usd": "0.0083", "kind": "sms", "provider": "mock", "reason": "", "result": {"from_phone_number": "+13105550000", "media_count": 0, "message": "SMS queued with the mock provider. Twilio was not contacted.", "message_sid": "SM_mock_1", "mock": true, "provider": "mock", "status": "queued", "success": true, "to_phone_number_masked": "***-***-0100", "vendor_spend_usd": "0"}, "summary": "Reminder: 5pm.", "summary_truncated": false, "to": "+13105550100", "to_masked": "***-***-0100", "ts": "2026-11-08T09:32:04.751528-08:00", "vendor_spend_usd": "0"}
+{"confirmed": true, "counts_as_call": false, "counts_as_text": false, "decision": "refused", "error": "", "estimated_cost_usd": "0.0000", "kind": "ai-call", "provider": "mock", "reason": "***-***-0199 is not on the allowlist. The allowlist is empty by default. Add the number only if it is yours or the person has opted in.", "result": null, "summary": "Ask if they are free this week.", "summary_truncated": false, "to": "+12125550199", "to_masked": "***-***-0199", "ts": "2026-11-08T09:32:04.843631-08:00", "vendor_spend_usd": "0"}
+{"confirmed": true, "counts_as_call": true, "counts_as_text": false, "decision": "allowed", "error": "", "estimated_cost_usd": "0.4200", "kind": "ai-call", "provider": "mock", "reason": "", "result": {"call_id": "mock-call-1", "max_duration_minutes": 3, "message": "AI call queued with the mock provider. No account was contacted.", "mock": true, "provider": "mock", "status": "queued", "success": true, "to_phone_number_masked": "***-***-0100", "vendor_spend_usd": "0", "voice": "mock"}, "summary": "Read the 5pm reminder.", "summary_truncated": false, "to": "+13105550100", "to_masked": "***-***-0100", "ts": "2026-11-08T09:32:04.911417-08:00", "vendor_spend_usd": "0"}
+{"confirmed": true, "counts_as_call": false, "counts_as_text": false, "decision": "allowed", "error": "", "estimated_cost_usd": "0.0000", "kind": "ai-status", "provider": "mock", "reason": "", "result": {"analysis": {"answers": ["mock: not a real conversation"], "questions": [["Did they acknowledge?", "string"]]}, "answered_by": "human", "call_id": "mock-call-1", "duration_minutes": 1, "message": "Mock status. Nothing was dialed.", "mock": true, "provider": "mock", "recording_url": null, "status": "completed", "success": true, "to_phone_number_masked": "***-***-0100", "transcript": "agent: Hi, this is your reminder line.\nagent: Read the 5pm reminder.\nuser: Okay, thanks.\n", "vendor_spend_usd": "0"}, "summary": "mock-call-1", "summary_truncated": false, "to": "", "to_masked": "", "ts": "2026-11-08T09:32:04.974826-08:00", "vendor_spend_usd": "0"}
+
+Done. Four log lines: text allowed, unlisted call refused, mock call allowed, status recorded.
+No Twilio, Bland, or Vapi account was required.

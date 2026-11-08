@@ -1,0 +1,20 @@
+# OpenAI-compatible Groq provider, in the shape documented by Hermes:
+# https://hermes-agent.nousresearch.com/docs/integrations/providers
+# (Cookbook: Together AI, Groq, Perplexity)
+#
+# The cookbook's sample model is llama-3.3-70b-versatile. This file uses
+# Groq's current Qwen 3.8 27B id instead. `providers.groq.api` is the base URL.
+# The key is GROQ_API_KEY in ~/.hermes/.env, not in this file.
+
+providers:
+  groq:
+    api: https://api.groq.com/openai/v1
+    key_env: GROQ_API_KEY
+
+model:
+  default: qwen/qwen3.8-27b
+  provider: custom:groq
+  # A fresh v0.23.0 install sets model.base_url to OpenRouter. Point it at
+  # Groq as well. providers.groq.api is the named-provider endpoint
+  # (entry["api"] in hermes_cli/runtime_provider_custom.py).
+  base_url: https://api.groq.com/openai/v1

@@ -1,0 +1,17 @@
+{
+  "name": "hermes-agent",
+  "repo": "https://github.com/NousResearch/hermes-agent",
+  "docs": "https://hermes-agent.nousresearch.com/docs/getting-started/installation",
+  "telephony_docs": "https://hermes-agent.nousresearch.com/docs/user-guide/skills/optional/productivity/productivity-telephony",
+  "skill_path": "optional-skills/productivity/telephony",
+  "script_path": "optional-skills/productivity/telephony/scripts/telephony.py",
+  "tag": "v0.23.0",
+  "commit": "2bd378ed1b8d6bf2192cb26e0a55ff3091e6bd19",
+  "license": "MIT",
+  "install_command": "hermes skills install official/productivity/telephony",
+  "provider_docs": "https://hermes-agent.nousresearch.com/docs/integrations/providers",
+  "groq_api": "https://api.groq.com/openai/v1",
+  "groq_model": "qwen/qwen3.8-27b",
+  "groq_key_env": "GROQ_API_KEY",
+  "pluggable_voice_issue": "https://github.com/NousResearch/hermes-agent/issues/66963"
+}
