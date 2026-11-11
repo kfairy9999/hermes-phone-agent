@@ -6,6 +6,12 @@ This repo installs [Nous Research's Hermes Agent](https://github.com/NousResearc
 
 The official skill is `hermes skills install official/productivity/telephony`. Its helper is `optional-skills/productivity/telephony/scripts/telephony.py`. Docs: [Telephony](https://hermes-agent.nousresearch.com/docs/user-guide/skills/optional/productivity/productivity-telephony).
 
+## See it run
+
+No install needed to see it work. This recording is the mock demo: an allowlisted text goes out after a yes, a call to a number that is not on the allowlist is refused even with `--confirm`, and the audit log shows $0 of vendor spend. Mock mode contacts no vendor. Re-run on November 10, 2026: `python scripts/demo_mock.py` printed the same output as [docs/media/demo.txt](docs/media/demo.txt) apart from ids and timestamps, and `pytest` passed 31 tests (4 skipped: they compare against the pinned upstream script and need `UPSTREAM_TELEPHONY_PY`).
+
+![Mock demo: guarded SMS, a refused call to a number off the allowlist, and the audit log](docs/media/demo.gif)
+
 ## Consent, and whose account gets billed
 
 Outbound AI voice calls in the United States need prior consent under the TCPA. Use this to call yourself or people who opted in. This README is not legal advice.
